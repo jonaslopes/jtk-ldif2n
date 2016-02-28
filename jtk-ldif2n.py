@@ -1,30 +1,6 @@
 #!/usr/bin/python
 # -*- coding: UTF-8 -*-
 
-# ################################################################################################################################################# #
-# 		JTK                   																			     										#
-#		LDIF2N FORMATS                   																			     							#
-#		Programa de extração de dados LDIF para N formatos 															     							#
-#		Versão: 1.0                      																			     							#
-#		Autor: Jonas Lopes																							     							#
-#																													     							#
-#		Pré-requisitos: Python 2.7.2																				     							#
-#																													     							#
-#						É necessário ter a Lib Python-LDAP instalada:												     							#
-# 						http://python-ldap.sourceforge.net																 							#
-#																				 									     							#
-#		Entrada obrigatórias:	-s	 		- Arquivo fonte LDIF.														 							#
-#								-g		 	- Termo que determinará o grupo de									 		 							#
-# 											  separação dos dados.														 							#
-#																																					#
-# 																														 							#
-#		Opções de entrada:	-i			- Exibe mensagens de status de execuação do script							     							#
-#							--help		- Exibe as informações de uso												     							#
-# 							-o			- Tipo de arquivo de saída [CSV | HTML | XML | SCREEN]							 							#
-#																				    									 							#
-#		Ex: python jtk-ldif2n.py [-g <grupo> -k <chave_grupo> -f <campo1,campo2...> | -q | --help | -o <CSV | HTML | XML | JSON | prompt>] 			#
-# ################################################################################################################################################# #
-
 import sys
 import os
 import logging
@@ -200,7 +176,6 @@ if any(n == '-s' for n in sys.argv):
 										else:
 											if line[0] == " ":
 												record_line[line_column] = line_value.strip().replace("\n","").replace("\t","")+line.strip().replace("\n","").replace("\t","")
-
 
 						# SAIDA DOS DADOS
 						if len(records) > 0:
