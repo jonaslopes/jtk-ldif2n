@@ -40,8 +40,6 @@ output = "csv"
 interactive = any(n == '-i' for n in sys.argv)
 text = ""
 
-
-
 # LOGGER
 logFormatter = logging.Formatter("%(asctime)s [%(threadName)-12.12s] [%(levelname)-5.5s]  %(message)s")
 Logger = logging.getLogger()
@@ -125,7 +123,6 @@ if any(n == '-s' for n in sys.argv) and any(n == '-g' for n in sys.argv):
 	else:
 		Logger.info('Nenhum tipo de  arquivo de saída especificado. O formato padrão CSV será utilizado.')
 
-
 	Logger.info('Verificando o arquivo fonte...')
 	indiceFile = sys.argv.index("-s")
 	if len(sys.argv) >= indiceFile+2:
@@ -205,7 +202,6 @@ if any(n == '-s' for n in sys.argv) and any(n == '-g' for n in sys.argv):
 										else:
 											if line[0] == " ":
 												record_line[line_column] = line_value.strip().replace("\n","").replace("\t","")+line.strip().replace("\n","").replace("\t","")
-
 
 						Logger.info("Foram encontrados %d registros." % len(records))
 
