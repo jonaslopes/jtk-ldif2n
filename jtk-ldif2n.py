@@ -304,13 +304,11 @@ elif any(n == '--version' for n in sys.argv):
 	print infoVersion
 
 else:
-	print "Erro!!!"
-	print "As seguintes variáveis são obrigatórias:".decode('utf8')
-	print "		-s 		- Arquivo fonte LDIF.".decode('utf8')
-	print "		-g 		- Termo que determinará o grupo de separação dos dados.".decode('utf8')
-	print "		-k		- Chave que determina a informação que agrupará os registros.".decode('utf8')
-	print "		-f		- Campos dos registros que serão separados.".decode('utf8')
-	print
-	print "digite o seguinte comando para ajuda:"
-	print "		python jtk-ldif2n.py --help"
+	print """
+	ERRO!!!
+	%s
+
+	digite o seguinte comando para ajuda:
+			$ python jtk-ldif2n.py --help
+	""" % infoRequiredEntry
 
