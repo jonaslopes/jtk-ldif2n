@@ -7,7 +7,7 @@ Programa de extração de dados LDIF para N formatos
 Versão: 1.0
 Autor: Jonas Lopes
 
-Pré-requisitos: Python 2.7.2
+> Pré-requisitos: Python 2.7.2
 
 
 Entrada obrigatórias:	-s	 		- Arquivo fonte LDIF.
