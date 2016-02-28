@@ -1,56 +1,32 @@
 #!/usr/bin/python
 # -*- coding: UTF-8 -*-
 
+# Copyright (c) 2011-2016, JONAS LOPES
+# All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without modification, are permitted provided that
+# the following conditions are met:
+#
+# 1. Redistributions of source code must retain the above copyright notice, this list of conditions and the
+# following disclaimer.
+#
+# 2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the
+# following disclaimer in the documentation and/or other materials provided with the distribution.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES,
+# INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+# DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+# SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+# SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+# WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+#  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
 import sys
 import os
 import logging
 import datetime
 import json
 import csv
-
-
-# FUNCOES
-def infoId():
-	print("JTK")
-	print("LDIF2N FORMATS")
-	print("Programa de extração de dados LDIF para Ns formatos".decode('utf8'))
-	print("Versão: 1.0".decode('utf8'))
-	print("Autor: Jonas Lopes".decode('utf8'))
-	print("Data: 2011-07-23".decode('utf8'))
-
-def infoPrereq():
-	print("Pré-requisitos:".decode('utf8'))
-	print("		- Python 2.7.x".decode('utf8'))
-	print("		- É necessário ter a Lib Python-LDAP instalada (http://python-ldap.sourceforge.net)".decode('utf8'))
-
-def infoOptions():
-	print("Entrada obrigatórias:".decode('utf8'))
-	print("		-s 		- Arquivo fonte LDIF.".decode("utf8"))
-	print("		-g 		- Termo que determinará o grupo de separação dos dados.".decode('utf8'))
-	print("		-k		- Chave que determina a informação que agrupará os registros.".decode('utf8'))
-	print("		-d		- Campos dos registros que serão separados.".decode('utf8'))
-	print
-	print("Opções de entrada:".decode('utf8'))
-	print("		-i			- Exibe mensagens de status de execuação do script".decode('utf8'))
-	print("		--help		- Exibe as informações de uso".decode('utf8'))
-	print("		-o		- Tipo de arquivo de saída [CSV | HTML | XML | JSON | SCREEN]".decode('utf8'))
-	print
-	print("Ex: python jkt-ldif2n.py [-g <grupo> -k <chave_grupo> -f <campo1,campo2...> | -q | --help | -o <csv | html | xml | screen>]".decode('utf8'))
-	print("    python jkt-ldif2n.py -g uid -k <chave_grupo> -f <campo1,campo2...> | -q | --help | -o <csv | html | xml | screen>]".decode('utf8'))
-
-"""
-def infoVersion():
-	printf("RNP - Integração Intranet e Protheus - rnp-intengracao-intranet-protheus 1.1-RELEASE " + format_usa.format(Calendar.getInstance().getTime()) + " " + PATH_APPLICATION);
-"""
-
-def info():
-	print("-- LDIF2N HELP --")
-	print
-	infoId()
-	print
-	infoPrereq()
-	print
-	infoOptions()
 
 APPLICATION_PATH = os.path.dirname(os.path.realpath(__file__))
 log_folder = APPLICATION_PATH+"/log"
@@ -59,7 +35,7 @@ date_log = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
 date_ansi = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 date_human = datetime.datetime.now().strftime("%d/-%m/%Y %H:%M:%S")
 
-tipos = ['csv','html','screen']
+output_type = ['csv','json','screen']
 output = "csv"
 interactive = any(n == '-i' for n in sys.argv)
 text = ""
@@ -73,53 +49,104 @@ Logger.setLevel(logging.INFO)
 fileHandler = logging.FileHandler(log_folder+'/jtk-ldif2n_'+date_log+'.log')
 fileHandler.setFormatter(logFormatter)
 Logger.addHandler(fileHandler)
-consoleHandler = logging.StreamHandler()
-consoleHandler.setFormatter(logFormatter)
-Logger.addHandler(consoleHandler)
+if interactive:
+	consoleHandler = logging.StreamHandler()
+	consoleHandler.setFormatter(logFormatter)
+	Logger.addHandler(consoleHandler)
 
-print
-Logger.info("JTK")
-Logger.info("LDIF2N FORMATS")
-Logger.info("Programa de extração de dados LDIF para Ns formatos")
-Logger.info("Versão: 1.0")
-Logger.info("Autor: Jonas Lopes")
-Logger.info("Data: 2011-07-24")
+version = "1.0"
+python_version = "2.7.x"
+author = "Jonas Lopes"
+release_date = "2011-07-24"
+description = "Programa de extração de dados LDIF para Ns formatos"
 
-#if any(n == '-s' for n in sys.argv) and any(n == '-g' for n in sys.argv) and any(n == '-k' for n in sys.argv):
-if any(n == '-s' for n in sys.argv):
-	if interactive:
-		infoId()
+infoPrereq = """
+	Pré-requisitos:
+		- Python %s
+		- É necessário ter a Lib Python-LDAP instalada (http://python-ldap.sourceforge.net)""" % python_version
+
+infoRequiredEntry = """
+	Entrada obrigatórias:
+		-s 		- Arquivo fonte LDIF
+		-g 		- Termo que determinará o grupo de separação dos dados
+"""
+
+infoEntryNotRequired = """
+	Opções de entrada:
+		-i		- Exibe mensagens de status de execuação do script
+		--help		- Exibe as informações de uso
+		--vertsion	- Exibe a versão do script
+		-o		- Tipo de arquivo de saída [CSV | JSON | SCREEN]
+"""
+
+infoOptions = """
+	%s
+
+	%s
+
+	Ex:
+		python jkt-ldif2n.py [-g <grupo> | -q | --help | -o <csv | json | screen>]
+		python jkt-ldif2n.py -g uid -o json
+	""" % (infoRequiredEntry, infoEntryNotRequired)
+
+infoVersion = "JTK - JON TOOLKIT - jtk-ldif2n %s-RELEASE %s %s" % (version, release_date, APPLICATION_PATH)
+
+infoSintaxe = """$ python jkt-ldif2n.py [-g <grupo> | --help | -o <CSV | HTML | XML | JSON | screen>]
+"""
+
+infoId = """
+	%s
+	%s
+	Versão: %s
+	Autor: %s
+	Data da Versão: %s""" % (infoVersion, description, version, author, release_date)
+
+
+if any(n == '-s' for n in sys.argv) and any(n == '-g' for n in sys.argv):
+
+	Logger.info(infoVersion)
+	Logger.info(description)
+	Logger.info("Autor: %s" % author)
+
+	Logger.info("Verificando tipo de arquivo de saída que será gerado...")
 
 	if any(n == '-o' for n in sys.argv):
 		indiceArgs = sys.argv.index("-o")
 		if len(sys.argv) >= indiceArgs+2:
 			output = sys.argv[indiceArgs+1]
 			if len(output) > 0:
-				if any(n == output.lower() for n in tipos):
+				if output.lower() in output_type:
 					output = output.lower()
+				else:
+					Logger.info('Tipo de arquivo de saída inválido. O formato padrão CSV será utilizado.')
+					output = "csv"
+			else:
+				Logger.info('Nenhum tipo de  arquivo de saída atribuído. O formato padrão CSV será utilizado.')
 	else:
-		Logger.info('ATENÇÃO: Tipo de arquivo de saída inválido. O formato padrão CSV será utilizado.')
+		Logger.info('Nenhum tipo de  arquivo de saída especificado. O formato padrão CSV será utilizado.')
 
+
+	Logger.info('Verificando o arquivo fonte...')
 	indiceFile = sys.argv.index("-s")
 	if len(sys.argv) >= indiceFile+2:
 		file = sys.argv[indiceFile+1]
 		if len(file) > 0:
 			if os.path.exists(file):
 				source = open(file,'r')
-
 				reg = 0
-				#print("REGISTRO "+str(reg))
+
 				with open(file, "r") as ins:
 
-					# DEFINI A LINHA INICIAL QUE DETERMINA UM GRUPO
-					# CASO NAO TENHA EH DEFINIDO COMO LINHA EM BRANCO
+					Logger.info("Verificando o delimitador que definirá um grupo de dados que determina um registro...")
 					group = ""
 					if any(n == '-g' for n in sys.argv):
 						indiceGroup = sys.argv.index("-g")
 						if len(sys.argv) >= indiceGroup+2:
 							group = sys.argv[indiceGroup+1]
 
-						# DEFINI AS COLUNAS
+						Logger.info("O delimitador será: %s" % group)
+
+						Logger.info("Definindo as colunas de registros...")
 						columns = []
 						reg = 0
 						for line in ins:
@@ -138,7 +165,9 @@ if any(n == '-s' for n in sys.argv):
 
 						ins.seek(0)
 
-						# RECUPERA OS DADOS
+						Logger.info("Foram encontradas %d colunas" % len(columns))
+
+						Logger.info("Verificando os dados dos registro...")
 						records = {}
 						record_line = {}
 						record_start = 0
@@ -177,7 +206,9 @@ if any(n == '-s' for n in sys.argv):
 											if line[0] == " ":
 												record_line[line_column] = line_value.strip().replace("\n","").replace("\t","")+line.strip().replace("\n","").replace("\t","")
 
-						# SAIDA DOS DADOS
+
+						Logger.info("Foram encontrados %d registros." % len(records))
+
 						if len(records) > 0:
 
 							filename = 'jtk-ldif2n_output_'+date_log
@@ -246,6 +277,8 @@ if any(n == '-s' for n in sys.argv):
 						else:
 							Logger.info('Nenhum registro recuperado.')
 
+						Logger.info('Arquivo gerado com sucesso!')
+
 					else:
 						print
 						print "ERRO: Nome do grupo de separação dos dados inválido.".decode("utf8")
@@ -260,13 +293,18 @@ if any(n == '-s' for n in sys.argv):
 			print
 
 elif any(n == '--help' for n in sys.argv):
-	info()
+	print """
+	-- LDIF2N HELP --
+	%s
+	%s
+	%s
+	""" % (infoId, infoPrereq, infoOptions)
 
 elif any(n == '--version' for n in sys.argv):
-	print("JTK - JON TOOLKIT - jtk-ldif2n 1.0-RELEASE " + date_ansi + " " + APPLICATION_PATH)
+	print infoVersion
 
 else:
-	print "[ Erro!!! ]"
+	print "Erro!!!"
 	print "As seguintes variáveis são obrigatórias:".decode('utf8')
 	print "		-s 		- Arquivo fonte LDIF.".decode('utf8')
 	print "		-g 		- Termo que determinará o grupo de separação dos dados.".decode('utf8')
